@@ -2,11 +2,15 @@
 
 namespace App\Lib\StandardLib;
 
+use App\Lib\StandardLib\Log\Log;
+use Monolog\Logger as MonologLogger;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Contracts\Events\Dispatcher;
 use App\Lib\StandardLib\Services\CacheService;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Cache\Repository as CacheRepository;
+use App\Lib\StandardLib\Services\Http\RequestIdentifier;
 
 /**
  * Class StdServiceProvider
@@ -27,6 +31,20 @@ class StdServiceProvider extends ServiceProvider
             $cache = $app->make(CacheRepository::class);
 
             return new CacheService($params['service-identifier'], $cache);
+        });
+
+        $this->app->singleton(RequestIdentifier::class, function (Application $app, array $params = [])
+        {
+            return new RequestIdentifier();
+        });
+
+        $this->app->singleton(Log::class, function (Application $app, array $params = [])
+        {
+            $identifier = $app->make(RequestIdentifier::class);
+            $monologger = $app->make(MonologLogger::class);
+            $dispatcher = $app->make(Dispatcher::class);
+
+            return new Log($monologger, $dispatcher, $identifier->get());
         });
     }
 }

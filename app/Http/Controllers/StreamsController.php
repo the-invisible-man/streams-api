@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use App\Lib\Streams\StreamsService;
 use App\Lib\StandardLib\Controller;
 use App\Lib\Ads\Contracts\AdProvider;
+use App\Lib\StandardLib\Services\Http\ResponseBuilder;
 use Illuminate\Validation\Factory as ValidatorFactory;
 
 /**
@@ -28,29 +29,21 @@ class StreamsController extends Controller
     /**
      * StreamsController constructor.
      *
-     * @param array $config
      * @param ValidatorFactory $factory
+     * @param ResponseBuilder $responseBuilder
      * @param AdProvider $adProvider
      * @param StreamsService $streamsService
      */
     public function __construct(
-        array               $config,
         ValidatorFactory    $factory,
+        ResponseBuilder     $responseBuilder,
         AdProvider          $adProvider,
         StreamsService      $streamsService
     ) {
-        parent::__construct($config, $factory);
+        parent::__construct($factory, $responseBuilder);
 
         $this->adService        = $adProvider;
         $this->streamsService   = $streamsService;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getRequiredConfig() : array
-    {
-        return array_merge([], parent::getRequiredConfig());
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Lib\StandardLib\Support\Responses;
+namespace App\Lib\StandardLib\Services\Http;
 
 /**
  * Interface CustomResponse

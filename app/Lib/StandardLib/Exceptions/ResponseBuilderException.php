@@ -3,9 +3,9 @@
 namespace App\Lib\StandardLib\Exceptions;
 
 /**
- * Class ResponseProcessException
+ * Class ResponseBuilderException
  *
  * @package App\Lib\StandardLib\Exceptions
  * @author  Carlos Granados <granados.carlos91@gmail.com>
  */
-class ResponseProcessException extends BaseException {}
+class ResponseBuilderException extends BaseException {}

@@ -3,8 +3,8 @@
 namespace App\Lib\Streams;
 
 use App\Lib\Streams\Models\Stream;
-use App\Lib\StandardLib\Services\CacheService;
 use App\Lib\Streams\Contracts\StreamsRepository;
+use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
 
 /**
  * Class StreamsService
@@ -20,7 +20,7 @@ class StreamsService
     private $repository;
 
     /**
-     * @var CacheService
+     * @var StreamsCacheService
      */
     private $cache;
 
@@ -28,9 +28,9 @@ class StreamsService
      * StreamsService constructor.
      *
      * @param StreamsRepository $repository
-     * @param CacheService $cache
+     * @param StreamsCacheService $cache
      */
-    public function __construct(StreamsRepository $repository, CacheService $cache)
+    public function __construct(StreamsRepository $repository, StreamsCacheService $cache)
     {
         $this->repository   = $repository;
         $this->cache        = $cache;
@@ -43,10 +43,11 @@ class StreamsService
     public function fetch(string $streamId) : Stream
     {
         if (!$this->cache->has($streamId)) {
-
+            $data = [];
+        } else {
+            $data = $this->cache->get($streamId);
         }
 
-        // Fetch data from cache
-        return $this->cache->get($streamId);
+        return $data;
     }
 }
