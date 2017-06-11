@@ -2,6 +2,8 @@
 
 namespace App\Lib\Streams;
 
+use App\Lib\StandardLib\Log\Log;
+use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Streams\Models\Stream;
 use App\Lib\Streams\Contracts\StreamsRepository;
 use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
@@ -14,6 +16,8 @@ use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
  */
 class StreamsService
 {
+    use Logs;
+
     /**
      * @var StreamsRepository
      */
@@ -25,15 +29,22 @@ class StreamsService
     private $cache;
 
     /**
+     * @var Log
+     */
+    private $log;
+
+    /**
      * StreamsService constructor.
      *
      * @param StreamsRepository $repository
      * @param StreamsCacheService $cache
+     * @param Log $log
      */
-    public function __construct(StreamsRepository $repository, StreamsCacheService $cache)
+    public function __construct(StreamsRepository $repository, StreamsCacheService $cache, Log $log)
     {
         $this->repository   = $repository;
         $this->cache        = $cache;
+        $this->log          = $log;
     }
 
     /**
@@ -49,5 +60,13 @@ class StreamsService
         }
 
         return $data;
+    }
+
+    /**
+     * @return Log
+     */
+    public function getLog() : Log
+    {
+        return $this->log;
     }
 }

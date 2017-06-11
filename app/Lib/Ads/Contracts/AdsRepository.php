@@ -2,19 +2,20 @@
 
 namespace App\Lib\Ads\Contracts;
 
+use App\Lib\Ads\Models\AdsContainer;
 use Illuminate\Contracts\Support\Arrayable;
 
 /**
- * Interface AdProvider
+ * Interface AdsRepository
  *
  * @package App\Lib\Ads\Contracts
  * @author  Carlos Granados <granados.carlos91@gmail.com>
  */
-interface AdProvider
+interface AdsRepository
 {
     /**
      * @param string $streamId
-     * @return Arrayable
+     * @return AdsContainer
      */
-    public function fetch(string $streamId) : Arrayable;
+    public function fetch(string $streamId) : AdsContainer;
 }

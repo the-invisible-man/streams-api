@@ -3,7 +3,8 @@
 namespace App\Lib\Ads\Providers;
 
 use GuzzleHttp\Client;
-use App\Lib\Ads\Contracts\AdProvider;
+use App\Lib\Ads\Models\AdsContainer;
+use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\Ads\Exceptions\AdServiceOutage;
 use Illuminate\Contracts\Support\Arrayable;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
@@ -14,7 +15,7 @@ use App\Lib\StandardLib\Traits\ChecksArrayKeys;
  * @package App\Lib\Ads\Providers
  * @author  Carlos Granados <granados.carlos91@gmail.com>
  */
-class NanoScaleMock implements AdProvider
+class NanoScaleMock implements AdsRepository
 {
     use ChecksArrayKeys;
 
@@ -34,10 +35,10 @@ class NanoScaleMock implements AdProvider
 
     /**
      * @param string $streamId
-     * @return Arrayable
+     * @return AdsContainer
      * @throws AdServiceOutage
      */
-    public function fetch(string $streamId) : Arrayable
+    public function fetch(string $streamId) : AdsContainer
     {
         $response = $this->http->request('GET', $streamId);
 
