@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Lib\Ads\AdsService;
 use Illuminate\Http\JsonResponse;
 use App\Lib\Streams\StreamsService;
 use App\Lib\StandardLib\Controller;
-use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\StandardLib\Services\Http\ResponseBuilder;
 use Illuminate\Validation\Factory as ValidatorFactory;
 
 /**
  * Class StreamsController
+ *
  * @package App\Http\Controllers
  * @author  Carlos Granados <granados.carlos91@gmail.com>
  */
 class StreamsController extends Controller
 {
     /**
-     * @var AdsRepository
+     * @var AdsService
      */
-    private $adService;
+    private $adsService;
 
     /**
      * @var StreamsService
@@ -31,18 +32,18 @@ class StreamsController extends Controller
      *
      * @param ValidatorFactory $factory
      * @param ResponseBuilder $responseBuilder
-     * @param AdsRepository $adProvider
+     * @param AdsService $adsService
      * @param StreamsService $streamsService
      */
     public function __construct(
         ValidatorFactory    $factory,
         ResponseBuilder     $responseBuilder,
-        AdsRepository          $adProvider,
+        AdsService          $adsService,
         StreamsService      $streamsService
     ) {
         parent::__construct($factory, $responseBuilder);
 
-        $this->adService        = $adProvider;
+        $this->adsService       = $adsService;
         $this->streamsService   = $streamsService;
     }
 

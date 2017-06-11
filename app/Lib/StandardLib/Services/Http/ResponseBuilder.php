@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use App\Lib\StandardLib\Controller;
 use Illuminate\Validation\Validator;
 use App\Lib\StandardLib\Exceptions\ErrorBag;
+use App\Lib\StandardLib\Traits\ClientReadable;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use Illuminate\Contracts\Routing\ResponseFactory;
 
@@ -52,7 +53,7 @@ class ResponseBuilder
      */
     protected function getRequiredConfig() : array
     {
-        return ['respond_uuid'];
+        return ['respond_uuid', 'debug', 'default_client_error'];
     }
 
     /**
@@ -183,13 +184,10 @@ class ResponseBuilder
         if (in_array(ClientReadable::class, $traits)) {
             $messages =  ($e instanceof ErrorBag) ? $e->all() : [$e->getMessage()];
         } else {
-            if (\Config::get('app.debug')) {
+            if ($this->config['debug']) {
                 $messages = $e->getMessage();
             } else {
-                // Confound my luck! I was not really able to avoid these facades. Controllers
-                // will need to have their own constructor most of the times, it'd be annoying
-                // having to call parent::__constructor() every time.
-                $messages = \Config::get('core.error-message');
+                $messages = $this->config['default_client_error'];
             }
         }
 

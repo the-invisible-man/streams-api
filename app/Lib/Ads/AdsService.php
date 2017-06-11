@@ -10,6 +10,7 @@ use App\Lib\StandardLib\Traits\ValidatesConfig;
 
 /**
  * Class AdsService
+ *
  * @package App\Lib\Ads
  * @author  Carlos Granados <granados.carlos91@gmail.com>
  */
@@ -46,6 +47,9 @@ class AdsService
         $this->logNamespace = 'AdsService';
     }
 
+    /**
+     * @return array
+     */
     public function getRequiredConfig() : array
     {
         return ['bail_if_down'];
@@ -76,7 +80,7 @@ class AdsService
             }
 
             // We can configure the app to not interrupt the streams if the ads fail.
-            $this->log(Log::CRITICAL, "Unable to fetch advertisements for stream id {$streamId}");
+            $this->log(Log::CRITICAL, "Unable to fetch advertisements for stream id: {$streamId}");
         }
 
         return $ads;

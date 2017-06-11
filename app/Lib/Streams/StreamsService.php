@@ -45,6 +45,7 @@ class StreamsService
         $this->repository   = $repository;
         $this->cache        = $cache;
         $this->log          = $log;
+        $this->logNamespace = 'StreamsService';
     }
 
     /**
@@ -65,7 +66,7 @@ class StreamsService
     /**
      * @return Log
      */
-    public function getLog() : Log
+    protected function getLog() : Log
     {
         return $this->log;
     }
