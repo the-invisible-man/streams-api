@@ -40,7 +40,7 @@ Inside each service folder you will also find a [Service Provider](https://larav
 
 You can find the services in `./app/Lib/Services`.
 
-*A note on the AdsService*: In order to avoid service disruptions when an Ad provider is down, we can choose to ignore ad failures and return the stream data. This mode is enabled by default and be changed from the `.env` file by updating the SERVICE_ADS_BAIL variable to `true` or `false`.
+*A note on the AdsService*: In order to avoid service disruptions when an Ad provider is down, we can choose to ignore ad failures and return the stream data. This mode is enabled by default and can be changed from the `.env` file by updating the SERVICE_ADS_BAIL variable to `true` or `false`.
 
 *A note on the StreamsService*: Results for all streams are not paginated, although pagination would be a good idea specially considering that under a real world scenario there would be more than only 3 streams.
 
