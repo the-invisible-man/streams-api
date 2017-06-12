@@ -120,6 +120,8 @@ class StreamsService
      */
     public function all() : StreamContainer
     {
+        $this->repository->fetchAllIds();
+
         $container = new StreamContainer();
 
         foreach ($this->repository->all() as $doc)
@@ -141,6 +143,14 @@ class StreamsService
     protected function getLog() : Log
     {
         return $this->log;
+    }
+
+    /**
+     * @return array
+     */
+    public function fetchAllIds() : array
+    {
+        $docs = $this->repository->fetchAllIds();
     }
 
     /**

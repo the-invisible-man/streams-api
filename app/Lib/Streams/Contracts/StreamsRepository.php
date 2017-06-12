@@ -23,4 +23,9 @@ interface StreamsRepository
      * @return array
      */
     public function all();
+
+    /**
+     * @return array
+     */
+    public function fetchAllIds() : array;
 }

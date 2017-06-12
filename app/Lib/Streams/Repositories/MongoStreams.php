@@ -86,4 +86,21 @@ class MongoStreams implements StreamsRepository
             yield $this->iteratorToArray($doc);
         }
     }
+
+    /**
+     * @return array
+     */
+    public function fetchAllIds() : array
+    {
+        $documents  = $this->collection->find([], ['streamUrl' => 1]);
+        $data       = [];
+
+        foreach ($documents->toArray() as $doc)
+        {
+            $doc    = iterator_to_array($doc);
+            $data[] = $doc['_id'];
+        }
+
+        return $data;
+    }
 }

@@ -63,6 +63,14 @@ class AdsService
     }
 
     /**
+     * @return bool
+     */
+    public function cacheEnabled() : bool
+    {
+        return (bool)$this->config['cache'];
+    }
+
+    /**
      * @return Log
      */
     public function getLog() : Log
