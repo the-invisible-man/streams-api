@@ -55,17 +55,17 @@ class StreamsController extends Controller
     }
 
     /**
-     * @param int $streamId
+     * @param string $streamId
      * @return JsonResponse
      */
-    public function get(int $streamId) : JsonResponse
+    public function get(string $streamId) : JsonResponse
     {
         $stream = $this->streamsService->fetch($streamId);
         $stream = $stream->toArray();
         $ads    = $this->adsService->fetch($streamId);
 
         // Append ad data to stream
-        $stream['ads'] = $ads->toArray();
+        $stream['ads'] = $ads;
 
         return $this->respond($stream);
     }

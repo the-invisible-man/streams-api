@@ -21,7 +21,7 @@ class AdsServiceProvider extends ServiceProvider
     {
         $this->app->singleton(NanoScaleMock::class, function (Application $app, array $params = [])
         {
-            $configPath = 'ads.providers.' . NanoScaleMock::class . 'api-url';
+            $configPath = 'ads.providers.' . NanoScaleMock::class . '.api-url';
             $apiUrl     = $app['config'][$configPath];
             $client     = new Client(['base_uri' => $apiUrl]);
 

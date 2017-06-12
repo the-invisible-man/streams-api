@@ -18,12 +18,12 @@ class Stream implements Arrayable
     /**
      * @var int
      */
-    private $_id;
+    private $id;
 
     /**
      * @var string
      */
-    private $streamUrl;
+    private $streamurl;
 
     /**
      * @var array
@@ -45,9 +45,9 @@ class Stream implements Arrayable
     public function toArray()
     {
         return [
-            '_id'       => $this->_id,
-            'streamUrl' => $this->streamUrl,
-            'captions'  => $this->captions
+            '_id'       => $this->getId(),
+            'streamUrl' => $this->getStreamUrl(),
+            'captions'  => $this->getCaptions()
         ];
     }
 
@@ -56,7 +56,7 @@ class Stream implements Arrayable
      */
     public function getId() : string
     {
-        return (string)$this->_id;
+        return (string)$this->id;
     }
 
     /**
@@ -64,7 +64,7 @@ class Stream implements Arrayable
      */
     public function getStreamUrl() : string
     {
-        return (string)$this->streamUrl;
+        return (string)$this->streamurl;
     }
 
     /**

@@ -65,10 +65,10 @@ class AdsService
 
     /**
      * @param string $streamId
-     * @return AdsContainer
+     * @return array
      * @throws \Throwable
      */
-    public function fetch(string $streamId) : AdsContainer
+    public function fetch(string $streamId) : array
     {
         $ads = new AdsContainer();
 

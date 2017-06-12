@@ -15,7 +15,7 @@ interface AdsRepository
 {
     /**
      * @param string $streamId
-     * @return AdsContainer
+     * @return array
      */
-    public function fetch(string $streamId) : AdsContainer;
+    public function fetch(string $streamId) : array;
 }

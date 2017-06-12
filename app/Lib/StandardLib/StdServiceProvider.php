@@ -43,11 +43,19 @@ class StdServiceProvider extends ServiceProvider
         $this->app->singleton(Log::class, function (Application $app, array $params = [])
         {
             $identifier = $app->make(RequestIdentifier::class);
-            $monologger = $app->make(MonologLogger::class);
+            $monologger = $app->make(\Illuminate\Log\Writer::class)->getMonolog();
             $dispatcher = $app->make(Dispatcher::class);
+
+            $syslog    = new \Monolog\Handler\SyslogUdpHandler("logs5.papertrailapp.com", 11586);
+            $formatter = new \Monolog\Formatter\LineFormatter('%channel%.%level_name%: %message% %extra%');
+
+            $syslog->setFormatter($formatter);
+            $monologger->pushHandler($syslog);
 
             return new Log($monologger, $dispatcher, $identifier->get());
         });
+
+
 
         $this->app->singleton(ResponseBuilder::class, function (Application $app, array $params)
         {

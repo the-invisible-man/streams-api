@@ -35,15 +35,24 @@ class NanoScaleMock implements AdsRepository
 
     /**
      * @param string $streamId
-     * @return AdsContainer
+     * @return array
      * @throws AdServiceOutage
      */
-    public function fetch(string $streamId) : AdsContainer
+    public function fetch(string $streamId) : array
     {
         $response = $this->http->request('GET', $streamId);
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
             throw new AdServiceOutage("Ad service is currently not available.");
         }
+
+        $body = $response->getBody()->getContents();
+        $body = json_decode($body, true);
+
+        if (!$body) {
+            throw new AdServiceOutage("Unable to decode json data from ad service");
+        }
+
+        return $body;
     }
 }

@@ -55,11 +55,7 @@ class StreamsService
      */
     public function fetch(string $streamId) : Stream
     {
-        if (!$this->cache->has($streamId)) {
-            $data = [];
-        } else {
-            $data = $this->cache->get($streamId);
-        }
+        $data = $this->repository->fetch($streamId);
 
         return $data;
     }
