@@ -3,10 +3,16 @@
 namespace App\Lib\Streams\Repositories;
 
 use MongoDB\Client;
-use Illuminate\Log\Writer;
 use MongoDB\Model\BSONDocument;
+use App\Lib\Streams\Models\Stream;
+use App\Lib\Streams\Models\StreamContainer;
+use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
+use App\Lib\StandardLib\Traits\IteratesIntoArray;
+use App\Lib\StandardLib\Exceptions\DataCheckException;
+use App\Lib\Streams\Exceptions\StreamNotFoundException;
+use App\Lib\StandardLib\Exceptions\CorruptedDataException;
 
 /**
  * Class MongoStreams
@@ -16,7 +22,7 @@ use App\Lib\Streams\Contracts\StreamsRepository;
  */
 class MongoStreams implements StreamsRepository
 {
-    use ValidatesConfig;
+    use ValidatesConfig, ChecksArrayKeys, IteratesIntoArray;
 
     /**
      * @var Client
@@ -34,22 +40,15 @@ class MongoStreams implements StreamsRepository
     private $collection;
 
     /**
-     * @var Writer
-     */
-    private $log;
-
-    /**
      * MongoStreams constructor.
      * @param array $config
      * @param Client $client
-     * @param Writer $log
      */
-    public function __construct(array $config, Client $client, Writer $log)
+    public function __construct(array $config, Client $client)
     {
         $this->config       = $this->validateConfig($config);
         $this->client       = $client;
         $this->collection   = $this->client->selectCollection($this->config['database'], $this->config['collection']);
-        $this->log          = $log;
     }
 
     /**
@@ -64,27 +63,55 @@ class MongoStreams implements StreamsRepository
     }
 
     /**
-     * This can be a costly operation for large complex structures, that's why caching is important
-     * @param \ArrayObject $object
-     * @param bool         $recursive
-     * @return array
+     * @param string $streamId
+     * @return Stream
+     * @throws StreamNotFoundException
      */
-    private function iteratorToArray(\ArrayObject $object, bool $recursive = true) : array
+    public function fetch(string $streamId) : Stream
     {
-        $converted  = iterator_to_array($object);
-        $output     = [];
+        $data = $this->collection->findOne(['_id' => $streamId]);
 
-        if ($recursive) {
-            foreach ($converted as $key => $structure)
-            {
-                if ($structure instanceof \ArrayObject) {
-                    $output[$key] = $this->iteratorToArray($structure, $recursive);
-                } else {
-                    $output[$key] = $structure;
-                }
-            }
+        if (!$data instanceof BSONDocument) {
+            throw new StreamNotFoundException("Unable to fetch stream with id {$streamId} from Mongo");
         }
 
-        return $output;
+        return $this->hydrateOne($data);
+    }
+
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @return StreamContainer
+     */
+    public function all(int $offset = 0, int $limit = 10) : StreamContainer
+    {
+        $documents = $this->collection->find()->skip($offset)->limit($limit);
+        
+    }
+
+    /**
+     * @param BSONDocument $data
+     * @return Stream
+     * @throws CorruptedDataException
+     */
+    private function hydrateOne(BSONDocument $data) : Stream
+    {
+        // Unpack data into native PHP associative array.
+        $data = $this->iteratorToArray($data);
+
+        try {
+            // Validate the data that we received from mongo.
+            $this->hasKeys(['_id', 'streamUrl', 'captions'], $data);
+        } catch (DataCheckException $e) {
+            // The reason that we are catching and rethrowing under a different exception is
+            // because DataCheckException is thrown by the hasKeys method from the ChecksArrayKeys
+            // trait and it is meant for a general use. This error however is more specific, we have
+            // bad data stored, if we rethrow under this exception the main exception handler will determine
+            // the appropriate Http error code, and in addition we can programmatically respond to events when
+            // we have corrupted data.
+            throw new CorruptedDataException($e->getMessage());
+        }
+
+        return new Stream($data);
     }
 }

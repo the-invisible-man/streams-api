@@ -6,12 +6,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Application Name
+    | Advertisement Configuration
     |--------------------------------------------------------------------------
     |
-    | This value is the name of your application. This value is used when the
-    | framework needs to place the application's name in a notification or
-    | any other location as required by the application or its packages.
+    | From this file we can set the default ad service provider that
+    | gets returned for every stream.
+    |
     */
 
     'default'   => NanoScaleMock::class,

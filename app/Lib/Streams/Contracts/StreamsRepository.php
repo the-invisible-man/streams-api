@@ -2,6 +2,9 @@
 
 namespace App\Lib\Streams\Contracts;
 
+use App\Lib\Streams\Models\Stream;
+use App\Lib\Streams\Models\StreamContainer;
+
 /**
  * Interface StreamsRepository
  *
@@ -10,5 +13,14 @@ namespace App\Lib\Streams\Contracts;
  */
 interface StreamsRepository
 {
+    /**
+     * @param string $streamId
+     * @return Stream
+     */
+    public function fetch(string $streamId) : Stream;
 
+    /**
+     * @return StreamContainer
+     */
+    public function all() : StreamContainer;
 }

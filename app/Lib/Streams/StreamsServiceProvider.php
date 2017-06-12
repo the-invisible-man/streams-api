@@ -2,8 +2,11 @@
 
 namespace App\Lib\Streams;
 
-use App\Lib\Streams\StreamsService;
+use MongoDB\Client;
+use App\Lib\StandardLib\Log\Log;
+use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
+use App\Lib\StandardLib\Services\CacheService;
 use App\Lib\Streams\Repositories\MongoStreams;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -19,12 +22,19 @@ class StreamsServiceProvider extends ServiceProvider
     {
         $this->app->singleton(MongoStreams::class, function (Application $app, array $params = [])
         {
-            //
+            $mongo  = $app->make(Client::class);
+            $config = $app['config']['streams.repositories.' . MongoStreams::class];
+
+            return new MongoStreams($config, $mongo);
         });
 
-        $this->app->singleton(StreamsService::class, function (Application $app, array $params = [])
+        $this->app->singleton(StreamsService::class, function (Container $app, array $params = [])
         {
-            //
+            $repo   = $app->make(MongoStreams::class);
+            $cache  = $app->makeWith(CacheService::class, ['service-identifier' => 'streams']);
+            $log    = $app->make(Log::class);
+
+            return new StreamsService($repo, $cache, $log);
         });
     }
 }

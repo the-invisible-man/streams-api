@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use App\Lib\StandardLib\Services\Http\ResponseBuilder;
-use Illuminate\Validation\Factory as ValidatorFactory;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use App\Lib\StandardLib\Services\Http\RequestIdentifier;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -30,11 +29,6 @@ abstract class Controller extends BaseController
     const ERROR = 'ERROR';
 
     /**
-     * @var ValidatorFactory
-     */
-    protected $validatorFactory;
-
-    /**
      * @var RequestIdentifier
      */
     protected $identifier;
@@ -46,12 +40,10 @@ abstract class Controller extends BaseController
 
     /**
      * Controller constructor.
-     * @param ValidatorFactory $factory
      * @param ResponseBuilder $builder
      */
-    public function __construct(ValidatorFactory $factory, ResponseBuilder $builder)
+    public function __construct(ResponseBuilder $builder)
     {
-        $this->validatorFactory = $factory;
         $this->responseBuilder  = $builder;
     }
 
@@ -62,7 +54,7 @@ abstract class Controller extends BaseController
      * @param int $code
      * @return JsonResponse
      */
-    protected function respond($data = [], string $status, $messages = [], int $code) : JsonResponse
+    protected function respond($data = [], string $status = Controller::OK, $messages = [], int $code = null) : JsonResponse
     {
         return $this->responseBuilder->respond($data, $status, $messages, $code);
     }

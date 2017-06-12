@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use App\Lib\Streams\StreamsService;
 use App\Lib\StandardLib\Controller;
 use App\Lib\StandardLib\Services\Http\ResponseBuilder;
-use Illuminate\Validation\Factory as ValidatorFactory;
 
 /**
  * Class StreamsController
@@ -30,18 +29,16 @@ class StreamsController extends Controller
     /**
      * StreamsController constructor.
      *
-     * @param ValidatorFactory $factory
      * @param ResponseBuilder $responseBuilder
      * @param AdsService $adsService
      * @param StreamsService $streamsService
      */
     public function __construct(
-        ValidatorFactory    $factory,
         ResponseBuilder     $responseBuilder,
         AdsService          $adsService,
         StreamsService      $streamsService
     ) {
-        parent::__construct($factory, $responseBuilder);
+        parent::__construct($responseBuilder);
 
         $this->adsService       = $adsService;
         $this->streamsService   = $streamsService;
@@ -52,7 +49,9 @@ class StreamsController extends Controller
      */
     public function all() : JsonResponse
     {
-
+        return $this->respond(
+            $this->streamsService->all()
+        );
     }
 
     /**
@@ -61,6 +60,13 @@ class StreamsController extends Controller
      */
     public function get(int $streamId) : JsonResponse
     {
+        $stream = $this->streamsService->fetch($streamId);
+        $stream = $stream->toArray();
+        $ads    = $this->adsService->fetch($streamId);
 
+        // Append ad data to stream
+        $stream['ads'] = $ads->toArray();
+
+        return $this->respond($stream);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Lib\Streams;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Streams\Models\Stream;
+use App\Lib\Streams\Models\StreamContainer;
 use App\Lib\Streams\Contracts\StreamsRepository;
 use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
 
@@ -61,6 +62,11 @@ class StreamsService
         }
 
         return $data;
+    }
+
+    public function all() : StreamContainer
+    {
+
     }
 
     /**
