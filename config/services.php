@@ -18,6 +18,7 @@ return [
     */
 
     AdsService::class => [
+        'cache'         => env('SERVICE_ADS_CACHE', false),
         'bail_if_down'  => env('SERVICE_ADS_BAIL', false)
     ],
 

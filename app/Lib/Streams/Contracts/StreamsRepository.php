@@ -20,7 +20,7 @@ interface StreamsRepository
     public function fetch(string $streamId) : array;
 
     /**
-     * @return StreamContainer
+     * @return array
      */
-    public function all() : StreamContainer;
+    public function all();
 }

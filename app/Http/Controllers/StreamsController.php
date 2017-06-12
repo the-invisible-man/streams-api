@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Lib\Streams\StreamsService;
 use App\Lib\StandardLib\Controller;
@@ -37,13 +36,12 @@ class StreamsController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return JsonResponse
      */
-    public function all(Request $request) : JsonResponse
+    public function all() : JsonResponse
     {
         return $this->respond(
-            $this->streamsService->all()
+            $this->streamsService->all()->toArray()
         );
     }
 

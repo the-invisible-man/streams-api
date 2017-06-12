@@ -88,4 +88,14 @@ class Stream implements Arrayable
     {
         return $this->ads;
     }
+
+    /**
+     * @param array $ads
+     * @return Stream
+     */
+    public function setAds(array $ads) : Stream
+    {
+        $this->ads = $ads;
+        return $this;
+    }
 }

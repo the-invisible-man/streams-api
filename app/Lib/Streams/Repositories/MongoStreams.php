@@ -77,13 +77,13 @@ class MongoStreams implements StreamsRepository
     }
 
     /**
-     * @param int $offset
-     * @param int $limit
-     * @return StreamContainer
+     * @return array
      */
-    public function all(int $offset = 0, int $limit = 10) : StreamContainer
+    public function all()
     {
-        $documents = $this->collection->find()->skip($offset)->limit($limit);
-
+        foreach ($this->collection->find()->toArray() as $doc)
+        {
+            yield $this->iteratorToArray($doc);
+        }
     }
 }

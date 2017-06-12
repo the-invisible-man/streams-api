@@ -54,7 +54,7 @@ abstract class TypeSafeObjectStorage extends \SplObjectStorage implements Arraya
     {
         $data = [];
 
-        foreach ($data as $obj) {
+        foreach ($this as $obj) {
             if ($this->is_arrayable($obj)) {
                 $data[] = $obj->toArray();
             } else {

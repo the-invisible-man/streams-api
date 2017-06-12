@@ -24,15 +24,22 @@ class StdServiceProvider extends ServiceProvider
 {
     use ChecksArrayKeys;
 
+    private static $caches = [];
+
     public function register()
     {
         $this->app->bind(CacheService::class, function (Application $app, array $params = [])
         {
             $this->hasKeys(['service-identifier'], $params);
 
-            $cache = $app->make(CacheRepository::class);
+            if (!isset(self::$caches[$params['service-identifier']]))
+            {
+                $cache = $app->make(CacheRepository::class);
 
-            return new CacheService($params['service-identifier'], $cache);
+                self::$caches[$params['service-identifier']] = new CacheService($params['service-identifier'], $cache);
+            }
+
+            return self::$caches[$params['service-identifier']];
         });
 
         $this->app->singleton(RequestIdentifier::class, function (Application $app, array $params = [])

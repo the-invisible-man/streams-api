@@ -4,9 +4,11 @@ namespace App\Lib\Ads;
 
 use GuzzleHttp\Client;
 use App\Lib\StandardLib\Log\Log;
+use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use App\Lib\Ads\Providers\NanoScaleMock;
 use App\Lib\Ads\Contracts\AdsRepository;
+use App\Lib\StandardLib\Services\CacheService;
 use Illuminate\Contracts\Foundation\Application;
 
 /**
@@ -37,13 +39,14 @@ class AdsServiceProvider extends ServiceProvider
             return $app->make($default);
         });
 
-        $this->app->singleton(AdsService::class, function (Application $app, array $params = [])
+        $this->app->singleton(AdsService::class, function (Container $app, array $params = [])
         {
             $conf       = $app['config']['services.' . AdsService::class];
             $adsRepo    = $app->make(AdsRepository::class);
             $log        = $app->make(Log::class);
+            $cache      = $app->makeWith(CacheService::class, ['service-identifier' => 'ads_service']);
 
-            return new AdsService($conf, $adsRepo, $log);
+            return new AdsService($conf, $adsRepo, $log, $cache);
         });
     }
 }

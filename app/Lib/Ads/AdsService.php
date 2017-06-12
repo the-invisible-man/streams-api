@@ -34,16 +34,23 @@ class AdsService
     private $config;
 
     /**
+     * @var AdsCacheService
+     */
+    private $cache;
+
+    /**
      * AdsService constructor.
      * @param array $config
      * @param AdsRepository $repository
      * @param Log $log
+     * @param AdsCacheService $cache
      */
-    public function __construct(array $config, AdsRepository $repository, Log $log)
+    public function __construct(array $config, AdsRepository $repository, Log $log, AdsCacheService $cache)
     {
         $this->config       = $this->validateConfig($config);
         $this->repository   = $repository;
         $this->log          = $log;
+        $this->cache        = $cache;
         $this->logNamespace = 'AdsService';
     }
 
@@ -52,7 +59,7 @@ class AdsService
      */
     public function getRequiredConfig() : array
     {
-        return ['bail_if_down'];
+        return ['bail_if_down', 'cache'];
     }
 
     /**
@@ -73,8 +80,24 @@ class AdsService
         $ads = [];
 
         try {
-            // Fetch fresh copy from repository
-            $ads = $this->repository->fetch($streamId);
+            if ($this->config['cache'] && $this->cache->has($streamId))
+            {
+                $this->log(Log::INFO, "Fetching advertisement data for stream with id {$streamId} from cache.");
+                $ads = $this->cache->get($streamId);
+            }
+            else {
+                $this->log(Log::INFO, "Fetching fresh stream object with id {$streamId} from repository.");
+                // Fetch fresh copy from repository
+                $ads = $this->repository->fetch($streamId);
+
+                if ($this->config['cache']) {
+                    $this->log(Log::INFO, "Caching is enabled, adding object to cache.");
+                    $this->cache->put($streamId, $ads);
+                } else {
+                    $this->log(Log::INFO, "Caching is disabled");
+                }
+            }
+
         } catch (\Throwable $e) {
             if ($this->config['bail_if_down']) {
                 throw $e;

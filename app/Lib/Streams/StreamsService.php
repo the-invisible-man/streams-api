@@ -10,7 +10,6 @@ use App\Lib\Streams\Models\StreamContainer;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
-use App\Lib\StandardLib\Traits\IteratesIntoArray;
 use App\Lib\StandardLib\Exceptions\DataCheckException;
 use App\Lib\StandardLib\Exceptions\CorruptedDataException;
 use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
@@ -23,7 +22,7 @@ use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
  */
 class StreamsService
 {
-    use Logs, ValidatesConfig, ChecksArrayKeys, IteratesIntoArray;
+    use Logs, ValidatesConfig, ChecksArrayKeys;
 
     /**
      * @var StreamsRepository
@@ -88,17 +87,23 @@ class StreamsService
      */
     public function fetch(string $streamId) : Stream
     {
-        // We'll check if caching is enabled for this service and continue from there
+        // We'll check if this service is configured to cache
+        // then we're going to check if the object is already in the cache.
         if ($this->config['cache'] && $this->cache->has($streamId)) {
             $this->log(Log::INFO, "Fetching stream with id {$streamId} from cache.");
             $data = $this->cache->get($streamId);
-        } else {
+        }
+
+        // The cache was either not enabled or the object was not found in the
+        // cache. Now we'll fetch the raw data objects from their respective repositories.
+        else {
             $this->log(Log::INFO, "Fetching fresh stream object with id {$streamId} from repository.");
+
             // We'll fetch both stream and advertisement data
             $data           = $this->repository->fetch($streamId);
             $data['ads']    = $this->adsService->fetch($streamId);
 
-            // If cache is enabled we'll persist this obejct to the cache
+            // If cache is enabled we'll persist this object to the cache.
             if ($this->config['cache']) {
                 $this->log(Log::INFO, "Caching is enabled, adding object to cache.");
                 $this->cache->put($streamId, $data);
@@ -115,7 +120,19 @@ class StreamsService
      */
     public function all() : StreamContainer
     {
+        $container = new StreamContainer();
 
+        foreach ($this->repository->all() as $doc)
+        {
+            $obj = new Stream($doc);
+            $ads = $this->adsService->fetch($obj->getId());
+
+            $container->attach(
+                $obj->setAds($ads)
+            );
+        }
+
+        return $container;
     }
 
     /**
