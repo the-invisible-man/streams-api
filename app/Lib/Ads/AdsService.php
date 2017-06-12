@@ -59,7 +59,7 @@ class AdsService
      */
     public function getRequiredConfig() : array
     {
-        return ['bail_if_down', 'cache'];
+        return ['bail_if_down', 'cache', 'cache_ttl'];
     }
 
     /**
@@ -94,18 +94,17 @@ class AdsService
                 $ads = $this->cache->get($streamId);
             }
             else {
-                $this->log(Log::INFO, "Fetching fresh stream object with id {$streamId} from repository.");
+                $this->log(Log::INFO, "Fetching fresh advertisement object with id {$streamId} from repository.");
                 // Fetch fresh copy from repository
                 $ads = $this->repository->fetch($streamId);
 
                 if ($this->config['cache']) {
                     $this->log(Log::INFO, "Caching is enabled, adding object to cache.");
-                    $this->cache->put($streamId, $ads);
+                    $this->cache->put($streamId, $ads, $this->config['cache_ttl']);
                 } else {
                     $this->log(Log::INFO, "Caching is disabled");
                 }
             }
-
         } catch (\Throwable $e) {
             if ($this->config['bail_if_down']) {
                 throw $e;

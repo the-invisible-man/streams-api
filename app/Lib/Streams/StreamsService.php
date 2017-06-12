@@ -78,7 +78,7 @@ class StreamsService
      */
     public function getRequiredConfig() : array
     {
-        return ['cache'];
+        return ['cache', 'cache_ttl'];
     }
 
     /**
@@ -120,8 +120,6 @@ class StreamsService
      */
     public function all() : StreamContainer
     {
-        $this->repository->fetchAllIds();
-
         $container = new StreamContainer();
 
         foreach ($this->repository->all() as $doc)
@@ -150,7 +148,7 @@ class StreamsService
      */
     public function fetchAllIds() : array
     {
-        $docs = $this->repository->fetchAllIds();
+        return $this->repository->fetchAllIds();
     }
 
     /**

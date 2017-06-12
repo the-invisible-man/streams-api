@@ -3,8 +3,8 @@
 namespace App\Lib\StandardLib;
 
 use App\Lib\StandardLib\Log\Log;
-use Monolog\Logger as MonologLogger;
 use Illuminate\Support\ServiceProvider;
+use App\Lib\StandardLib\Tools\CacheWarmer;
 use Illuminate\Contracts\Events\Dispatcher;
 use App\Lib\StandardLib\Services\CacheService;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
@@ -24,6 +24,9 @@ class StdServiceProvider extends ServiceProvider
 {
     use ChecksArrayKeys;
 
+    /**
+     * @var CacheService[]
+     */
     private static $caches = [];
 
     public function register()
@@ -35,8 +38,9 @@ class StdServiceProvider extends ServiceProvider
             if (!isset(self::$caches[$params['service-identifier']]))
             {
                 $cache = $app->make(CacheRepository::class);
+                $log   = $app->make(Log::class);
 
-                self::$caches[$params['service-identifier']] = new CacheService($params['service-identifier'], $cache);
+                self::$caches[$params['service-identifier']] = new CacheService($params['service-identifier'], $cache, $log);
             }
 
             return self::$caches[$params['service-identifier']];
@@ -62,9 +66,7 @@ class StdServiceProvider extends ServiceProvider
             return new Log($monologger, $dispatcher, $identifier->get());
         });
 
-
-
-        $this->app->singleton(ResponseBuilder::class, function (Application $app, array $params)
+        $this->app->singleton(ResponseBuilder::class, function (Application $app, array $params = [])
         {
             $config             = $app['config']['app.response'];
             $config['debug']    = $app['config']['app.debug'];
@@ -72,6 +74,19 @@ class StdServiceProvider extends ServiceProvider
             $requestIdentifier  = $app->make(RequestIdentifier::class);
 
             return new ResponseBuilder($config, $factory, $requestIdentifier);
+        });
+
+        $this->app->singleton(CacheWarmer::class, function (Application $app, array $params = [])
+        {
+            $warmers    = $app['config']['cache.warmers'];
+            $container  = [];
+
+            foreach ($warmers as $warmer)
+            {
+                $container[] = $app->make($warmer);
+            }
+
+            return new CacheWarmer($container);
         });
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Lib\StandardLib\Services;
 
+use App\Lib\StandardLib\Log\Log;
+use App\Lib\StandardLib\Log\Logs;
 use App\Lib\StandardLib\Exceptions\BadInputException;
 use Illuminate\Contracts\Cache\Repository as CacheContract;
 
@@ -19,6 +21,8 @@ use Illuminate\Contracts\Cache\Repository as CacheContract;
  */
 class CacheService
 {
+    use Logs;
+
     /**
      * @var string
      */
@@ -30,15 +34,31 @@ class CacheService
     private $cache;
 
     /**
+     * @var Log
+     */
+    private $log;
+
+    /**
      * StreamsService constructor.
      *
      * @param string $serviceIdentifier
      * @param CacheContract $cacheRepository
+     * @param Log $log
      */
-    public function __construct(string $serviceIdentifier, CacheContract $cacheRepository)
+    public function __construct(string $serviceIdentifier, CacheContract $cacheRepository, Log $log)
     {
         $this->serviceId    = $serviceIdentifier;
         $this->cache        = $cacheRepository;
+        $this->log          = $log;
+        $this->logNamespace = 'CacheService:' . $this->serviceId;
+    }
+
+    /**
+     * @return Log
+     */
+    protected function getLog() : Log
+    {
+        return $this->log;
     }
 
     /**
@@ -53,7 +73,11 @@ class CacheService
         }
 
         // Basically looks like: streams[1]
-        return $this->serviceId . '[' . $objectId . ']';
+        $key = $this->serviceId . '[' . $objectId . ']';
+
+        $this->log(Log::INFO, "Building cache key: {$key}");
+
+        return $key;
     }
 
     /**

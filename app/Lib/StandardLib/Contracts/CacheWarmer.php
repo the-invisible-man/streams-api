@@ -10,5 +10,15 @@ namespace App\Lib\StandardLib\Contracts;
  */
 interface CacheWarmer
 {
-    public function warmUp();
+    /**
+     * Should returned number of items loaded
+     * @return int
+     */
+    public function warmUp() : int;
+
+    /**
+     * A name to identify this warmer with.
+     * @return string
+     */
+    public function name() : string;
 }

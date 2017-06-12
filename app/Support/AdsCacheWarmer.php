@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Lib\Streams\Support;
+namespace App\Support;
 
 use App\Lib\Ads\AdsService;
 use App\Lib\StandardLib\Log\Log;
@@ -57,13 +57,21 @@ class AdsCacheWarmer implements CacheWarmer
     }
 
     /**
-     * @return void
+     * @return string
      */
-    public function warmUp()
+    public function name() : string
+    {
+        return 'AdsCacheWarmer';
+    }
+
+    /**
+     * @return int
+     */
+    public function warmUp() : int
     {
         if (!$this->adsService->cacheEnabled()) {
             $this->log(Log::INFO, "Cache warmer will not run because caching for ads service is not enabled.");
-            return;
+            return 0;
         }
 
         $counter = 0;
@@ -76,5 +84,7 @@ class AdsCacheWarmer implements CacheWarmer
         }
 
         $this->log(Log::INFO, "Cache warmer finished, loaded {$counter} entries into the cache.");
+
+        return $counter;
     }
 }

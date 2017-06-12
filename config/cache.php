@@ -85,7 +85,7 @@ return [
     */
 
     'warmers' => [
-        App\Lib\Streams\Support\AdsCacheWarmer::class
+        App\Support\AdsCacheWarmer::class
     ],
 
     /*

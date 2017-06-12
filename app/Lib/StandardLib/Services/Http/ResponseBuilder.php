@@ -90,6 +90,10 @@ class ResponseBuilder
      */
     public function buildResponse(array $response) : array
     {
+        if ($this->config['respond_uuid']) {
+            $response['uuid'] = $this->identifier->get();
+        }
+
         if (!(is_object($response['data']) && in_array(CustomResponse::class, class_implements($response['data']))))
         {
             return $response;
@@ -102,10 +106,6 @@ class ResponseBuilder
         $response       = array_merge($response, $customResponse->getTopLevel());
 
         $response['data'] = $customResponse->getData();
-
-        if ($this->config['respond_uuid']) {
-            $response['uuid'] = $this->identifier->get();
-        }
 
         return $response;
     }

@@ -8,6 +8,8 @@ use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\Ads\Exceptions\AdServiceOutage;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
+use Psr\Http\Message\MessageInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class NanoScaleMock
@@ -61,10 +63,7 @@ class NanoScaleMock implements AdsRepository
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
 
-            $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", [
-                'body'  => $response->getBody()->getContents(),
-                'code'  => $response->getStatusCode()
-            ]);
+            $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", $this->responseToArray($response));
 
             throw new AdServiceOutage("Ad service is currently not available.");
         }
@@ -73,9 +72,21 @@ class NanoScaleMock implements AdsRepository
         $body = json_decode($body, true);
 
         if (!$body) {
-            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.");
+            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.", $this->responseToArray($response));
         }
 
         return $body;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return array
+     */
+    private function responseToArray(ResponseInterface $response) : array
+    {
+        return [
+            'body'  => $response->getBody()->getContents(),
+            'code'  => $response->getStatusCode()
+        ];
     }
 }
