@@ -83,4 +83,15 @@ class CacheService
     {
         return $this->cache->forget($this->makeKey($key));
     }
+
+    /**
+     * @param  string  $key
+     * @param  mixed   $value
+     * @param  \DateTime|float|int  $minutes
+     * @return void
+     */
+    public function put($key, $value, $minutes = null)
+    {
+        $this->cache->put($this->makeKey($key), $value, $minutes);
+    }
 }

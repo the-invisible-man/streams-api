@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Lib\Ads\AdsService;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Lib\Streams\StreamsService;
 use App\Lib\StandardLib\Controller;
@@ -17,11 +17,6 @@ use App\Lib\StandardLib\Services\Http\ResponseBuilder;
 class StreamsController extends Controller
 {
     /**
-     * @var AdsService
-     */
-    private $adsService;
-
-    /**
      * @var StreamsService
      */
     private $streamsService;
@@ -30,24 +25,22 @@ class StreamsController extends Controller
      * StreamsController constructor.
      *
      * @param ResponseBuilder $responseBuilder
-     * @param AdsService $adsService
      * @param StreamsService $streamsService
      */
     public function __construct(
         ResponseBuilder     $responseBuilder,
-        AdsService          $adsService,
         StreamsService      $streamsService
     ) {
         parent::__construct($responseBuilder);
 
-        $this->adsService       = $adsService;
         $this->streamsService   = $streamsService;
     }
 
     /**
+     * @param Request $request
      * @return JsonResponse
      */
-    public function all() : JsonResponse
+    public function all(Request $request) : JsonResponse
     {
         return $this->respond(
             $this->streamsService->all()
@@ -62,10 +55,6 @@ class StreamsController extends Controller
     {
         $stream = $this->streamsService->fetch($streamId);
         $stream = $stream->toArray();
-        $ads    = $this->adsService->fetch($streamId);
-
-        // Append ad data to stream
-        $stream['ads'] = $ads;
 
         return $this->respond($stream);
     }

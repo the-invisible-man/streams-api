@@ -31,6 +31,11 @@ class Stream implements Arrayable
     private $captions;
 
     /**
+     * @var array
+     */
+    private $ads;
+
+    /**
      * Stream constructor.
      * @param array $data
      */
@@ -47,7 +52,8 @@ class Stream implements Arrayable
         return [
             '_id'       => $this->getId(),
             'streamUrl' => $this->getStreamUrl(),
-            'captions'  => $this->getCaptions()
+            'captions'  => $this->getCaptions(),
+            'ads'       => $this->getAds()
         ];
     }
 
@@ -73,5 +79,13 @@ class Stream implements Arrayable
     public function getCaptions() : array
     {
         return $this->captions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAds() : array
+    {
+        return $this->ads;
     }
 }

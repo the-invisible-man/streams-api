@@ -24,8 +24,9 @@ class AdsServiceProvider extends ServiceProvider
             $configPath = 'ads.providers.' . NanoScaleMock::class . '.api-url';
             $apiUrl     = $app['config'][$configPath];
             $client     = new Client(['base_uri' => $apiUrl]);
+            $log        = $app->make(Log::class);
 
-            return new NanoScaleMock($client);
+            return new NanoScaleMock($client, $log);
         });
 
         $this->app->singleton(AdsRepository::class, function (Application $app, array $params = [])
@@ -38,7 +39,7 @@ class AdsServiceProvider extends ServiceProvider
 
         $this->app->singleton(AdsService::class, function (Application $app, array $params = [])
         {
-            $conf       = ['bail_if_down' => false];
+            $conf       = $app['config']['services.' . AdsService::class];
             $adsRepo    = $app->make(AdsRepository::class);
             $log        = $app->make(Log::class);
 

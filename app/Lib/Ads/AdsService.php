@@ -4,9 +4,9 @@ namespace App\Lib\Ads;
 
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
-use App\Lib\Ads\Models\AdsContainer;
 use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
+use App\Lib\StandardLib\Services\CacheService as AdsCacheService;
 
 /**
  * Class AdsService
@@ -70,15 +70,15 @@ class AdsService
      */
     public function fetch(string $streamId) : array
     {
-        $ads = new AdsContainer();
+        $ads = [];
 
         try {
+            // Fetch fresh copy from repository
             $ads = $this->repository->fetch($streamId);
         } catch (\Throwable $e) {
             if ($this->config['bail_if_down']) {
                 throw $e;
             }
-
             // We can configure the app to not interrupt the streams if the ads fail.
             $this->log(Log::CRITICAL, "Unable to fetch advertisements for stream id: {$streamId}");
         }

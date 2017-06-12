@@ -15,9 +15,9 @@ interface StreamsRepository
 {
     /**
      * @param string $streamId
-     * @return Stream
+     * @return array
      */
-    public function fetch(string $streamId) : Stream;
+    public function fetch(string $streamId) : array;
 
     /**
      * @return StreamContainer

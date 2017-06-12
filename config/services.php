@@ -1,6 +1,29 @@
 <?php
 
+use App\Lib\Ads\AdsService;
+use App\Lib\Streams\StreamsService;
+
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Core Application Services
+    |--------------------------------------------------------------------------
+    |
+    | These services are coupled with the main application. Most of
+    | the services in this list were designed around the domain
+    | logic of the system. You can do simple things such as
+    | enable and disable caching.
+    |
+    */
+
+    AdsService::class => [
+        'bail_if_down'  => env('SERVICE_ADS_BAIL', false)
+    ],
+
+    StreamsService::class => [
+        'cache' => env('SERVICE_STREAMS_CACHE', false)
+    ],
 
     /*
     |--------------------------------------------------------------------------

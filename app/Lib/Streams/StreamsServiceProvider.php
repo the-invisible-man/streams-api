@@ -3,6 +3,7 @@
 namespace App\Lib\Streams;
 
 use MongoDB\Client;
+use App\Lib\Ads\AdsService;
 use App\Lib\StandardLib\Log\Log;
 use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
@@ -30,11 +31,13 @@ class StreamsServiceProvider extends ServiceProvider
 
         $this->app->singleton(StreamsService::class, function (Container $app, array $params = [])
         {
+            $config = $app['config']['services.' . StreamsService::class];
             $repo   = $app->make(MongoStreams::class);
             $cache  = $app->makeWith(CacheService::class, ['service-identifier' => 'streams']);
             $log    = $app->make(Log::class);
+            $ads    = $app->make(AdsService::class);
 
-            return new StreamsService($repo, $cache, $log);
+            return new StreamsService($config, $repo, $cache, $log, $ads);
         });
     }
 }

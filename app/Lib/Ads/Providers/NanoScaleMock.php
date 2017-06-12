@@ -3,10 +3,10 @@
 namespace App\Lib\Ads\Providers;
 
 use GuzzleHttp\Client;
-use App\Lib\Ads\Models\AdsContainer;
+use App\Lib\StandardLib\Log\Log;
+use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\Ads\Exceptions\AdServiceOutage;
-use Illuminate\Contracts\Support\Arrayable;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 
 /**
@@ -17,7 +17,7 @@ use App\Lib\StandardLib\Traits\ChecksArrayKeys;
  */
 class NanoScaleMock implements AdsRepository
 {
-    use ChecksArrayKeys;
+    use ChecksArrayKeys, Logs;
 
     /**
      * @var Client
@@ -25,12 +25,29 @@ class NanoScaleMock implements AdsRepository
     private $http;
 
     /**
+     * @var Log
+     */
+    private $log;
+
+    /**
      * NanoScaleMock constructor.
      * @param Client $client
+     * @param Log $log
      */
-    public function __construct(Client $client)
+    public function __construct(Client $client, Log $log)
     {
         $this->http     = $client;
+        $this->log      = $log;
+
+        $this->logNamespace = 'NanoScaleMock';
+    }
+
+    /**
+     * @return Log
+     */
+    protected function getLog() : Log
+    {
+        return $this->log;
     }
 
     /**
@@ -43,6 +60,12 @@ class NanoScaleMock implements AdsRepository
         $response = $this->http->request('GET', $streamId);
 
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+
+            $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", [
+                'body'  => $response->getBody()->getContents(),
+                'code'  => $response->getStatusCode()
+            ]);
+
             throw new AdServiceOutage("Ad service is currently not available.");
         }
 
@@ -50,7 +73,7 @@ class NanoScaleMock implements AdsRepository
         $body = json_decode($body, true);
 
         if (!$body) {
-            throw new AdServiceOutage("Unable to decode json data from ad service");
+            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.");
         }
 
         return $body;

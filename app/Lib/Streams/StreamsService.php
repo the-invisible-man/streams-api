@@ -2,11 +2,17 @@
 
 namespace App\Lib\Streams;
 
+use App\Lib\Ads\AdsService;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Streams\Models\Stream;
 use App\Lib\Streams\Models\StreamContainer;
+use App\Lib\StandardLib\Traits\ChecksArrayKeys;
+use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
+use App\Lib\StandardLib\Traits\IteratesIntoArray;
+use App\Lib\StandardLib\Exceptions\DataCheckException;
+use App\Lib\StandardLib\Exceptions\CorruptedDataException;
 use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
 
 /**
@@ -17,7 +23,7 @@ use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
  */
 class StreamsService
 {
-    use Logs;
+    use Logs, ValidatesConfig, ChecksArrayKeys, IteratesIntoArray;
 
     /**
      * @var StreamsRepository
@@ -35,18 +41,45 @@ class StreamsService
     private $log;
 
     /**
+     * @var array
+     */
+    private $config;
+
+    /**
+     * @var AdsService
+     */
+    private $adsService;
+
+    /**
      * StreamsService constructor.
      *
+     * @param array $config
      * @param StreamsRepository $repository
      * @param StreamsCacheService $cache
      * @param Log $log
+     * @param AdsService $adsService
      */
-    public function __construct(StreamsRepository $repository, StreamsCacheService $cache, Log $log)
-    {
+    public function __construct(
+        array               $config,
+        StreamsRepository   $repository,
+        StreamsCacheService $cache,
+        Log                 $log,
+        AdsService          $adsService
+    ) {
+        $this->config       = $this->validateConfig($config);
         $this->repository   = $repository;
         $this->cache        = $cache;
         $this->log          = $log;
+        $this->adsService   = $adsService;
         $this->logNamespace = 'StreamsService';
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequiredConfig() : array
+    {
+        return ['cache'];
     }
 
     /**
@@ -55,11 +88,31 @@ class StreamsService
      */
     public function fetch(string $streamId) : Stream
     {
-        $data = $this->repository->fetch($streamId);
+        // We'll check if caching is enabled for this service and continue from there
+        if ($this->config['cache'] && $this->cache->has($streamId)) {
+            $this->log(Log::INFO, "Fetching stream with id {$streamId} from cache.");
+            $data = $this->cache->get($streamId);
+        } else {
+            $this->log(Log::INFO, "Fetching fresh stream object with id {$streamId} from repository.");
+            // We'll fetch both stream and advertisement data
+            $data           = $this->repository->fetch($streamId);
+            $data['ads']    = $this->adsService->fetch($streamId);
 
-        return $data;
+            // If cache is enabled we'll persist this obejct to the cache
+            if ($this->config['cache']) {
+                $this->log(Log::INFO, "Caching is enabled, adding object to cache.");
+                $this->cache->put($streamId, $data);
+            } else {
+                $this->log(Log::INFO, "Caching is disabled");
+            }
+        }
+
+        return $this->hydrateOne($data);
     }
 
+    /**
+     * @return StreamContainer
+     */
     public function all() : StreamContainer
     {
 
@@ -71,5 +124,28 @@ class StreamsService
     protected function getLog() : Log
     {
         return $this->log;
+    }
+
+    /**
+     * @param array $data
+     * @return Stream
+     * @throws CorruptedDataException
+     */
+    private function hydrateOne(array $data) : Stream
+    {
+        try {
+            // Validate the data that we received from mongo.
+            $this->hasKeys(['_id', 'streamUrl', 'captions'], $data);
+        } catch (DataCheckException $e) {
+            // The reason that we are catching and rethrowing under a different exception is
+            // because DataCheckException is thrown by the hasKeys method from the ChecksArrayKeys
+            // trait and it is meant for a general use. This error however is more specific, we have
+            // bad data stored, if we rethrow under this exception the main exception handler will determine
+            // the appropriate Http error code, and in addition we can programmatically respond to events when
+            // we have corrupted data.
+            throw new CorruptedDataException($e->getMessage());
+        }
+
+        return new Stream($data);
     }
 }
