@@ -22,11 +22,11 @@ All code dependencies can be installed with composer by entering the project's r
 $ composer install
 ```
 
-All common configuration changes, including the MongoDB connection config, can be done from the `.env` locate in the project's root. In a real world scenario the `.env` file would be added to the .gitignore file but given the nature of this challenge the `.env` file has been added to the repo to ease the setup of this project.
+All common configuration changes, including the MongoDB connection config, can be done from the `.env` located in the project's root. In a real world scenario the `.env` file would be added to the .gitignore file but given the nature of this challenge the `.env` file has been added to the repo to ease the setup of this project.
 
 Additional configurations can be changed from the `./config` folder in the root of the application. Configuration for the core services can be found at `./config/services.php`.
 
-One the database connection and the Mongo connection have been configured, it's time to run the migrations that create the mongo database and collection:
+Once the database connection and the Mongo connection have been configured, it's time to run the migrations that create the mongo database and collection:
 
 ```sh
 $ php artisan migrate
@@ -42,6 +42,8 @@ You can find the services in `./app/Lib/Services`.
 
 *A note on the AdsService*: In order to avoid service disruptions when an Ad provider is down, we can choose to ignore ad failures and return the stream data. This mode is enabled by default and be changed from the `.env` file by updating the SERVICE_ADS_BAIL variable to `true` or `false`.
 
+*A note on the StreamsService*: Results for all streams are not paginated, although pagination would be a good idea specially considering that under a real world scenario there would be more than only 3 streams.
+
 ### Standard Lib
 
 A collection of classes and helper methods that I've put together over time to facilitate development with the Laravel Framework. This can be found insde the `Services` folder, although this is not considered a "service" per se.
@@ -53,11 +55,11 @@ A few of the assumptions that were made when building this API:
 * Ad data is always the same for a specific Stream ID.
 * This API will be under heavy load from all clients (Mobile Apps, SPA, TV devices)
 
-With these two assumptions in mind the system was designed to cache redundant information. Both the `StreamService` and the `AdService` have the ability to cache their responses. This cache can be turned off on just one service or on both services from the `.env` file.
+With these two assumptions in mind the system was designed to cache redundant information. Both the `StreamService` and the `AdService` have the ability to cache their responses. This cache can be turned off for just one service or for both services from the `.env` file.
 
 ### What gets cached?
 
-By default only the `AdsService` caches its responses on a per stream id basis. One could enable the cache on the `StreamService` to avoid unpacking complex mongo structures per call, but keep in mind that given that the advertisement data is considered part of the Stream object, such data will also be cached.
+By default only the `AdsService` caches its responses on a per stream id basis. One could enable the cache on the `StreamService` to avoid unpacking complex mongo structures per call, but keep in mind that given that the advertisement data is considered part of the Stream object, such data will also be cached even if the cache is off for the `AdsService`.
 
 ### Cache Warmer
 
