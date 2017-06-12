@@ -86,7 +86,7 @@ class MongoStreams implements StreamsRepository
     public function all(int $offset = 0, int $limit = 10) : StreamContainer
     {
         $documents = $this->collection->find()->skip($offset)->limit($limit);
-        
+
     }
 
     /**

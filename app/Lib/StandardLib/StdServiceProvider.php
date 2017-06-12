@@ -9,7 +9,9 @@ use Illuminate\Contracts\Events\Dispatcher;
 use App\Lib\StandardLib\Services\CacheService;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Cache\Repository as CacheRepository;
+use App\Lib\StandardLib\Services\Http\ResponseBuilder;
 use App\Lib\StandardLib\Services\Http\RequestIdentifier;
 
 /**
@@ -45,6 +47,16 @@ class StdServiceProvider extends ServiceProvider
             $dispatcher = $app->make(Dispatcher::class);
 
             return new Log($monologger, $dispatcher, $identifier->get());
+        });
+
+        $this->app->singleton(ResponseBuilder::class, function (Application $app, array $params)
+        {
+            $config             = $app['config']['app.response'];
+            $config['debug']    = $app['config']['app.debug'];
+            $factory            = $app->make(ResponseFactory::class);
+            $requestIdentifier  = $app->make(RequestIdentifier::class);
+
+            return new ResponseBuilder($config, $factory, $requestIdentifier);
         });
     }
 }
