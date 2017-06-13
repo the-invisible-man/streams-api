@@ -82,22 +82,12 @@ class CacheService
     }
 
     /**
-     * @param  string $objectId
-     * @return bool
-     */
-    public function has(string $objectId) : bool
-    {
-        return $this->cache->has($this->makeKey($objectId));
-    }
-
-    /**
      * @param  string $key
-     * @param  mixed $default
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get($key)
     {
-        return $this->cache->get($this->makeKey($key), $default);
+        return $this->cache->get($this->makeKey($key));
     }
 
     /**

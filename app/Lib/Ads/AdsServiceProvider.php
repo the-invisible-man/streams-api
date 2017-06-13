@@ -44,7 +44,7 @@ class AdsServiceProvider extends ServiceProvider
             $conf       = $app['config']['services.' . AdsService::class];
             $adsRepo    = $app->make(AdsRepository::class);
             $log        = $app->make(Log::class);
-            $cache      = $app->makeWith(CacheService::class, ['service-identifier' => 'ads_service']);
+            $cache      = $app->makeWith(CacheService::class, ['service-identifier' => 'AdsService']);
 
             return new AdsService($conf, $adsRepo, $log, $cache);
         });

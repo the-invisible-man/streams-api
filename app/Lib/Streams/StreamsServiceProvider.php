@@ -33,7 +33,7 @@ class StreamsServiceProvider extends ServiceProvider
         {
             $config = $app['config']['services.' . StreamsService::class];
             $repo   = $app->make(MongoStreams::class);
-            $cache  = $app->makeWith(CacheService::class, ['service-identifier' => 'streams']);
+            $cache  = $app->makeWith(CacheService::class, ['service-identifier' => 'StreamsService']);
             $log    = $app->make(Log::class);
             $ads    = $app->make(AdsService::class);
 
