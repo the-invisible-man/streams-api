@@ -18,4 +18,10 @@ interface AdsRepository
      * @return array
      */
     public function fetch(string $streamId) : array;
+
+    /**
+     * @param array $streamIds
+     * @return array
+     */
+    public function fetchMany(array $streamIds) : array;
 }

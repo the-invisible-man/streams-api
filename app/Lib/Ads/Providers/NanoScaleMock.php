@@ -3,13 +3,13 @@
 namespace App\Lib\Ads\Providers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
+use Psr\Http\Message\ResponseInterface;
 use App\Lib\Ads\Contracts\AdsRepository;
 use App\Lib\Ads\Exceptions\AdServiceOutage;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
-use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class NanoScaleMock
@@ -61,6 +61,41 @@ class NanoScaleMock implements AdsRepository
     {
         $response = $this->http->request('GET', $streamId);
 
+        return $this->processResponse($response);
+    }
+
+    /**
+     * @param array $streamIds
+     * @return array
+     */
+    public function fetchMany(array $streamIds) : array
+    {
+        $promises = [];
+
+        foreach ($streamIds as $streamId)
+        {
+            $promises[$streamId] = $this->http->getAsync($streamId);
+        }
+
+        // We'll concurrently send these requests. If any of the request
+        // fails we'll continue anyway, they will be handled later.
+        $data = Promise\settle($promises)->wait();
+
+        foreach ($data as $streamId => $response)
+        {
+            $data[$streamId] = $this->processResponse($response['value']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return array
+     * @throws AdServiceOutage
+     */
+    private function processResponse(ResponseInterface $response) : array
+    {
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
 
             $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", $this->responseToArray($response));

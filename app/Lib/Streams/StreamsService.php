@@ -121,15 +121,25 @@ class StreamsService
     public function all() : StreamContainer
     {
         $container = new StreamContainer();
+        $streamIds = [];
 
         foreach ($this->repository->all() as $doc)
         {
-            $obj = new Stream($doc);
-            $ads = $this->adsService->fetch($obj->getId());
+            $obj            = new Stream($doc);
+            $streamIds[]    = $obj->getId();
 
-            $container->attach(
-                $obj->setAds($ads)
-            );
+            $container->attach($obj);
+        }
+
+        $ads = $this->adsService->fetchMany($streamIds);
+
+        // Now we're going to fetch all the ads
+        foreach ($container as $stream)
+        {
+            /**
+             * @var Stream $stream
+             */
+            $stream->setAds($ads[$stream->getId()]);
         }
 
         return $container;

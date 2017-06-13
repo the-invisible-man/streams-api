@@ -4,8 +4,9 @@ namespace App\Lib\StandardLib\Services;
 
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
+use Illuminate\Contracts\Cache\Store;
 use App\Lib\StandardLib\Exceptions\BadInputException;
-use Illuminate\Contracts\Cache\Repository as CacheContract;
+use App\Lib\StandardLib\Exceptions\CacheServiceException;
 
 /**
  * Class CacheService
@@ -29,7 +30,7 @@ class CacheService
     private $serviceId;
 
     /**
-     * @var CacheContract
+     * @var Store
      */
     private $cache;
 
@@ -42,10 +43,10 @@ class CacheService
      * StreamsService constructor.
      *
      * @param string $serviceIdentifier
-     * @param CacheContract $cacheRepository
+     * @param Store $cacheRepository
      * @param Log $log
      */
-    public function __construct(string $serviceIdentifier, CacheContract $cacheRepository, Log $log)
+    public function __construct(string $serviceIdentifier, Store $cacheRepository, Log $log)
     {
         $this->serviceId    = $serviceIdentifier;
         $this->cache        = $cacheRepository;
@@ -117,5 +118,38 @@ class CacheService
     public function put($key, $value, $minutes = null)
     {
         $this->cache->put($this->makeKey($key), $value, $minutes);
+    }
+
+    /**
+     * @param array $keys
+     * @return array
+     * @throws BadInputException
+     */
+    public function many(array $keys) : array
+    {
+        $fKeys = [];
+
+        foreach ($keys as $key)
+        {
+            $fKeys[] = $this->makeKey($key);
+        }
+
+        return $this->cache->many($fKeys);
+    }
+
+    /**
+     * @param array $tags
+     * @param string $key
+     * @param $value
+     * @param null $minutes
+     * @throws CacheServiceException
+     */
+    public function tags(array $tags, string $key, $value, $minutes = null)
+    {
+        if (method_exists($this->cache, 'tags')) {
+            $this->cache->tags($tags)->put($key, $value, $minutes);
+        }
+
+        throw new CacheServiceException("Cannot use tags because current cache driver does not support tagging.");
     }
 }

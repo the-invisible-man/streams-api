@@ -5,6 +5,7 @@ The Streams API follows the guidelines set forth by the Discovery Digital [codin
 ## Dependencies
 
 * PHP 7.0
+* Redis
 * Composer
 * Pear (PHP package manager)
 * MongoDB
@@ -12,7 +13,7 @@ The Streams API follows the guidelines set forth by the Discovery Digital [codin
 
 ## Installing and Configuring
 
-You will need the MongoDB C extension for PHP distributed by Pear before you can install the composer dependencies. You can install the extension with the following command.
+This project requires the MongoDB C extension for PHP distributed by Pear before you can install the composer dependencies. The extension can be installed with the following command.
 ```sh
 $ sudo pecl install mongodb
 ```
@@ -22,11 +23,11 @@ All code dependencies can be installed with composer by entering the project's r
 $ composer install
 ```
 
-All common configuration changes, including the MongoDB connection config, can be done from the `.env` located in the project's root. In a real world scenario the `.env` file would be added to the .gitignore file but given the nature of this challenge the `.env` file has been added to the repo to ease the setup of this project.
+All common configuration changes, including the MongoDB connection config and the Redis config, can be done from the `.env` located in the project's root. In a real world scenario the `.env` file would be added to the .gitignore file but given the nature of this challenge the `.env` file has been added to the repo to ease the setup of this project.
 
 Additional configurations can be changed from the `./config` folder in the root of the application. Configuration for the core services can be found at `./config/services.php`.
 
-Once the database connection and the Mongo connection have been configured, it's time to run the migrations that create the mongo database and collection:
+Once the MySQL database connection and the Mongo connection have been configured, it's time to run the migrations that create the mongo database and collection:
 
 ```sh
 $ php artisan migrate
@@ -38,7 +39,7 @@ The application is broken down into services, these services have been decoupled
 
 Inside each service folder you will also find a [Service Provider](https://laravel.com/docs/5.4/providers). This allows all services, and their dependencies to be injected by Laravel's IoC pattern (Laravel's Service Container). 
 
-You can find the services in `./app/Lib/Services`.
+All services can be found in: `./app/Lib`.
 
 *A note on the AdsService*: In order to avoid service disruptions when an Ad provider is down, we can choose to ignore ad failures and return the stream data. This mode is enabled by default and can be changed from the `.env` file by updating the SERVICE_ADS_BAIL variable to `true` or `false`.
 

@@ -22,4 +22,13 @@ class StreamContainer extends TypeSafeObjectStorage
         $this->setContainerType(Stream::class, self::CONCRETE);
         parent::__construct($data);
     }
+
+    /**
+     * @param Stream $object
+     * @return mixed
+     */
+    public function getHash($object)
+    {
+        return $object->getId();
+    }
 }

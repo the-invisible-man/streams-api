@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_DRIVER', 'file'),
+    'default' => env('CACHE_DRIVER', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -80,7 +80,7 @@ return [
     | Cache Warmers
     |--------------------------------------------------------------------------
     |
-    | Preload your cache data in advance.
+    | Load your cache data in advance.
     |
     */
 
@@ -99,6 +99,6 @@ return [
     |
     */
 
-    'prefix' => 'laravel',
+    'prefix' => 'streams-api',
 
 ];

@@ -3,6 +3,8 @@
 namespace App\Lib\StandardLib;
 
 use App\Lib\StandardLib\Log\Log;
+use Illuminate\Cache\RedisStore;
+use Illuminate\Contracts\Cache\Store;
 use Illuminate\Support\ServiceProvider;
 use App\Lib\StandardLib\Tools\CacheWarmer;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -37,7 +39,7 @@ class StdServiceProvider extends ServiceProvider
 
             if (!isset(self::$caches[$params['service-identifier']]))
             {
-                $cache = $app->make(CacheRepository::class);
+                $cache = $app->make(RedisStore::class);
                 $log   = $app->make(Log::class);
 
                 self::$caches[$params['service-identifier']] = new CacheService($params['service-identifier'], $cache, $log);
