@@ -123,6 +123,7 @@ class StreamsService
         $container = new StreamContainer();
         $streamIds = [];
 
+        // First we fetch the streams from the repository.
         foreach ($this->repository->all() as $doc)
         {
             $obj            = new Stream($doc);
@@ -131,9 +132,9 @@ class StreamsService
             $container->attach($obj);
         }
 
+        // Now we're going to fetch all the ads
         $ads = $this->adsService->fetchMany($streamIds);
 
-        // Now we're going to fetch all the ads
         foreach ($container as $stream)
         {
             /**

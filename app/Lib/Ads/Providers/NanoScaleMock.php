@@ -77,7 +77,7 @@ class NanoScaleMock implements AdsRepository
             $promises[$streamId] = $this->http->getAsync($streamId);
         }
 
-        // We'll concurrently send these requests. If any of the request
+        // We'll concurrently send these requests. If any of the requests
         // fails we'll continue anyway, they will be handled later.
         $data = Promise\settle($promises)->wait();
 
@@ -107,7 +107,9 @@ class NanoScaleMock implements AdsRepository
         $body = json_decode($body, true);
 
         if (!$body) {
-            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.", $this->responseToArray($response));
+            $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", $this->responseToArray($response));
+
+            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.");
         }
 
         return $body;

@@ -5,6 +5,12 @@ namespace App\Lib\StandardLib\Tools;
 use Illuminate\Console\Command;
 use App\Lib\StandardLib\Contracts\CacheWarmer as CacheWarmerContract;
 
+/**
+ * Class CacheWarmer
+ *
+ * @package App\Lib\StandardLib\Tools
+ * @author  Carlos Granados <granados.carlos91@gmail.com>
+ */
 class CacheWarmer extends Command
 {
     /**
