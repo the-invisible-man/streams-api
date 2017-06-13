@@ -2,10 +2,10 @@
 
 namespace App\Lib\Ads;
 
-use App\Lib\Ads\Exceptions\AdServiceOutage;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Ads\Contracts\AdsRepository;
+use App\Lib\Ads\Exceptions\AdServiceOutage;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\StandardLib\Services\CacheService as AdsCacheService;
 
@@ -96,10 +96,10 @@ class AdsService
             }
         }
 
-        $missing    = array_diff($streamIds, array_column($inCache, 'stream_id'));
+        $missing    = array_diff($streamIds, array_keys($inCache));
         $data       = array_merge($inCache, $this->repository->fetchMany($missing));
 
-        // Validate
+        // Validate responses and add to cache
         foreach ($missing as $streamId) {
             if (!isset($data[$streamId]) && $this->config['bail_if_down']) {
                 throw new AdServiceOutage("Unable to fetch ad data for stream if {$streamId}");
@@ -155,6 +155,8 @@ class AdsService
             $body['stream_id'] = $streamId;
 
             $this->cache->put($streamId, $body, $this->config['cache_ttl']);
+
+            return;
         }
 
         $this->log(Log::INFO, "Caching is disabled");

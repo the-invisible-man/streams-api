@@ -83,24 +83,28 @@ class NanoScaleMock implements AdsRepository
 
         foreach ($data as $streamId => $response)
         {
-            $data[$streamId] = $this->processResponse($response['value']);
+            // We'll suppress validation errors and let the parent caller check for errors
+            $data[$streamId] = $this->processResponse($response['value'], true);
         }
 
         return $data;
     }
 
     /**
+     * @param bool $silent
      * @param ResponseInterface $response
      * @return array
      * @throws AdServiceOutage
      */
-    private function processResponse(ResponseInterface $response) : array
+    private function processResponse(ResponseInterface $response, bool $silent = false) : array
     {
         if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
 
             $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", $this->responseToArray($response));
 
-            throw new AdServiceOutage("Ad service is currently not available.");
+            if (!$silent) {
+                throw new AdServiceOutage("Ad service is currently not available.");
+            }
         }
 
         $body = $response->getBody()->getContents();
@@ -109,7 +113,9 @@ class NanoScaleMock implements AdsRepository
         if (!$body) {
             $this->log(Log::CRITICAL, "Request to NanoScale ad provider failed.", $this->responseToArray($response));
 
-            throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.");
+            if (!$silent){
+                throw new AdServiceOutage("Unable to decode json data from NanoScale ad service even though their API returned a success http code.");
+            }
         }
 
         return $body;

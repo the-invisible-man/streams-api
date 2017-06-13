@@ -19,13 +19,13 @@ return [
 
     AdsService::class => [
         'cache'         => env('SERVICE_ADS_CACHE', true),
-        'cache_ttl'     => 1440,
+        'cache_ttl'     => env('SERVICE_ADS_CACHE_TTL', 1440),
         'bail_if_down'  => env('SERVICE_ADS_BAIL', false)
     ],
 
     StreamsService::class => [
         'cache'     => env('SERVICE_STREAMS_CACHE', false),
-        'cache_ttl' => 1440
+        'cache_ttl' => env('SERVICE_STREAMS_CACHE_TTL', 1440)
     ],
 
     /*
