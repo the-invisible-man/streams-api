@@ -51,9 +51,8 @@ class StreamsController extends Controller
      */
     public function get(string $streamId) : JsonResponse
     {
-        $stream = $this->streamsService->fetch($streamId);
-        $stream = $stream->toArray();
-
-        return $this->respond($stream);
+        return $this->respond(
+            $this->streamsService->fetch($streamId)
+        );
     }
 }

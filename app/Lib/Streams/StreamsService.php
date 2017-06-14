@@ -5,12 +5,9 @@ namespace App\Lib\Streams;
 use App\Lib\Ads\AdsService;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
-use App\Lib\Streams\Models\Stream;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
-use App\Lib\StandardLib\Exceptions\DataCheckException;
-use App\Lib\StandardLib\Exceptions\CorruptedDataException;
 use App\Lib\StandardLib\Services\CacheService as StreamsCacheService;
 
 /**
@@ -82,15 +79,14 @@ class StreamsService
 
     /**
      * @param string $streamId
-     * @return Stream
+     * @return array
      */
-    public function fetch(string $streamId) : Stream
+    public function fetch(string $streamId) : array
     {
         // We'll check if this service is configured to cache
         // then we're going to check if the object is already in the cache.
-        if ($this->config['cache'] && $this->cache->has($streamId)) {
-            $this->log(Log::INFO, "Fetching stream with id {$streamId} from cache.");
-            $data = $this->cache->get($streamId);
+        if ($this->config['cache'] && !is_null($data = $this->cache->get($streamId))) {
+            $this->log(Log::INFO, "Fetched stream with id {$streamId} from cache.");
         }
 
         // The cache was either not enabled or the object was not found in the
@@ -111,7 +107,7 @@ class StreamsService
             }
         }
 
-        return $this->hydrateOne($data);
+        return $data;
     }
 
     /**
@@ -125,9 +121,8 @@ class StreamsService
         // First we fetch the streams from the repository.
         foreach ($this->repository->all() as $doc)
         {
-            $obj                        = new Stream($doc);
-            $streamIds[]                = $obj->getId();
-            $container[$obj->getId()]   = $obj;
+            $streamIds[]    = $doc['_id'];
+            $container[]    = $doc;
         }
 
         // Now we're going to fetch all the ads
@@ -135,10 +130,8 @@ class StreamsService
 
         foreach ($container as $stream)
         {
-            /**
-             * @var Stream $stream
-             */
-            $stream->setAds($ads[$stream->getId()]);
+
+            $stream['ads'] = $ads[$stream['_id']];
         }
 
         return $container;
@@ -158,28 +151,5 @@ class StreamsService
     public function fetchAllIds() : array
     {
         return $this->repository->fetchAllIds();
-    }
-
-    /**
-     * @param array $data
-     * @return Stream
-     * @throws CorruptedDataException
-     */
-    private function hydrateOne(array $data) : Stream
-    {
-        try {
-            // Validate the data that we received from mongo.
-            $this->hasKeys(['_id', 'streamUrl', 'captions'], $data);
-        } catch (DataCheckException $e) {
-            // The reason that we are catching and rethrowing under a different exception is
-            // because DataCheckException is thrown by the hasKeys method from the ChecksArrayKeys
-            // trait and it is meant for a general use. This error however is more specific, we have
-            // bad data stored, if we rethrow under this exception the main exception handler will determine
-            // the appropriate Http error code, and in addition we can programmatically respond to events when
-            // we have corrupted data.
-            throw new CorruptedDataException($e->getMessage());
-        }
-
-        return new Stream($data);
     }
 }
