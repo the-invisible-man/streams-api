@@ -102,7 +102,7 @@ class AdsService
         // Validate responses and add to cache
         foreach ($missing as $streamId) {
             if (!isset($data[$streamId]) && $this->config['bail_if_down']) {
-                throw new AdServiceOutage("Unable to fetch ad data for stream if {$streamId}");
+                throw new AdServiceOutage("Unable to fetch ad data for stream id {$streamId}");
             }
 
             $this->cache($streamId, $data[$streamId]);

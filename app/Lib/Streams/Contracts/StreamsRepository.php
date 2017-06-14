@@ -2,9 +2,6 @@
 
 namespace App\Lib\Streams\Contracts;
 
-use App\Lib\Streams\Models\Stream;
-use App\Lib\Streams\Models\StreamContainer;
-
 /**
  * Interface StreamsRepository
  *

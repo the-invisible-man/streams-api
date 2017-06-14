@@ -41,7 +41,7 @@ class StreamsController extends Controller
     public function all() : JsonResponse
     {
         return $this->respond(
-            $this->streamsService->all()->toArray()
+            $this->streamsService->all()
         );
     }
 

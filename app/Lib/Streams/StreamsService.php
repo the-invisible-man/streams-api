@@ -6,7 +6,6 @@ use App\Lib\Ads\AdsService;
 use App\Lib\StandardLib\Log\Log;
 use App\Lib\StandardLib\Log\Logs;
 use App\Lib\Streams\Models\Stream;
-use App\Lib\Streams\Models\StreamContainer;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
@@ -116,20 +115,19 @@ class StreamsService
     }
 
     /**
-     * @return StreamContainer
+     * @return array
      */
-    public function all() : StreamContainer
+    public function all() : array
     {
-        $container = new StreamContainer();
+        $container = [];
         $streamIds = [];
 
         // First we fetch the streams from the repository.
         foreach ($this->repository->all() as $doc)
         {
-            $obj            = new Stream($doc);
-            $streamIds[]    = $obj->getId();
-
-            $container->attach($obj);
+            $obj                        = new Stream($doc);
+            $streamIds[]                = $obj->getId();
+            $container[$obj->getId()]   = $obj;
         }
 
         // Now we're going to fetch all the ads

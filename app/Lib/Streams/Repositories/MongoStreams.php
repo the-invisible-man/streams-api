@@ -4,7 +4,6 @@ namespace App\Lib\Streams\Repositories;
 
 use MongoDB\Client;
 use MongoDB\Model\BSONDocument;
-use App\Lib\Streams\Models\StreamContainer;
 use App\Lib\StandardLib\Traits\ChecksArrayKeys;
 use App\Lib\StandardLib\Traits\ValidatesConfig;
 use App\Lib\Streams\Contracts\StreamsRepository;
