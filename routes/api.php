@@ -13,6 +13,6 @@
 
 Route::group(['prefix' => 'streams'], function ()
 {
-    Route::get('/', 'StreamsController@get');
-    Route::get('/{stream_id}', 'StreamsController@all');
+    Route::get('/', 'StreamsController@all');
+    Route::get('/{stream_id}', 'StreamsController@get');
 });

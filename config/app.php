@@ -124,6 +124,21 @@ return [
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Http Response
+    |--------------------------------------------------------------------------
+    |
+    | Configure the response for the main application from here
+    |
+    */
+
+    'response'  => [
+        'respond_uuid'          => true,
+        'default_client_error'  => 'There was an error with that request.'
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
@@ -180,7 +195,8 @@ return [
 
         // Main Application Service Providers
         App\Lib\Ads\AdsServiceProvider::class,
-        App\Lib\Streams\StreamsServiceProvider::class
+        App\Lib\Streams\StreamsServiceProvider::class,
+        App\Lib\StandardLib\StdServiceProvider::class
 
     ],
 
